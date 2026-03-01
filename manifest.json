@@ -16,55 +16,61 @@
   "iarc_rating_id": "e84b0729-7b0e-4d4d-8b4a-9b0e4d4d8b4a",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%230ea5e9' width='192' height='192' rx='32'/><text x='96' y='130' text-anchor='middle' font-size='100'>💧</text></svg>",
+      "src": "icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%230ea5e9' width='512' height='512' rx='64'/><text x='256' y='340' text-anchor='middle' font-size='280'>💧</text></svg>",
+      "src": "icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 540 720'><rect fill='%23f8fafc' width='540' height='720'/><rect fill='%230ea5e9' y='0' width='540' height='120' rx='0'/><text x='270' y='80' text-anchor='middle' fill='white' font-size='32' font-weight='bold'>Water Buddy</text><circle cx='270' cy='300' r='80' fill='%23e0f2fe'/><text x='270' y='320' text-anchor='middle' font-size='60'>💧</text></svg>",
-      "sizes": "540x720",
-      "type": "image/svg+xml",
-      "form_factor": "narrow",
-      "label": "Home Screen"
     },
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1024 768'><rect fill='%23f8fafc' width='1024' height='768'/><rect fill='%230ea5e9' y='0' width='1024' height='100'/><text x='512' y='65' text-anchor='middle' fill='white' font-size='28' font-weight='bold'>Water Buddy - Hydration Tracker</text><circle cx='300' cy='350' r='100' fill='%23e0f2fe'/><text x='300' y='380' text-anchor='middle' font-size='80'>💧</text><circle cx='600' cy='350' r='60' fill='%23d1fae5'/><text x='600' y='370' text-anchor='middle' font-size='40'>🎮</text><circle cx='800' cy='350' r='60' fill='%23fef3c7'/><text x='800' y='370' text-anchor='middle' font-size='40'>🏆</text></svg>",
-      "sizes": "1024x768",
-      "type": "image/svg+xml",
-      "form_factor": "wide",
-      "label": "Dashboard View"
+      "src": "icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-48.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-36.png",
+      "sizes": "36x36",
+      "type": "image/png",
+      "purpose": "any"
     }
   ],
+  "screenshots": [],
   "shortcuts": [
     {
       "name": "Add Water",
       "short_name": "Add",
       "description": "Quick add water intake",
-      "url": "/?action=add",
-      "icons": [{ "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect fill='%2322c55e' width='96' height='96' rx='16'/><text x='48' y='68' text-anchor='middle' font-size='50'>+</text></svg>", "sizes": "96x96" }]
+      "url": "/?action=add"
     },
     {
       "name": "View Stats",
       "short_name": "Stats",
       "description": "View your hydration statistics",
-      "url": "/?tab=stats",
-      "icons": [{ "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect fill='%238b5cf6' width='96' height='96' rx='16'/><text x='48' y='68' text-anchor='middle' font-size='50'>📊</text></svg>", "sizes": "96x96" }]
+      "url": "/?tab=stats"
     },
     {
       "name": "Play Game",
       "short_name": "Game",
       "description": "Play bubble pop game",
-      "url": "/?action=game",
-      "icons": [{ "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect fill='%23f59e0b' width='96' height='96' rx='16'/><text x='48' y='68' text-anchor='middle' font-size='50'>🫧</text></svg>", "sizes": "96x96" }]
+      "url": "/?action=game"
     }
   ],
   "related_applications": [],
@@ -91,28 +97,8 @@
       "url": "url"
     }
   },
-  "widgets": [
-    {
-      "name": "Water Tracker",
-      "short_name": "Water",
-      "description": "Quick view of daily water progress",
-      "tag": "water-widget",
-      "template": "water-tracker",
-      "ms_ac_template": "water-tracker-template",
-      "data": "widget-data.json",
-      "type": "application/json",
-      "screenshots": [],
-      "icons": [],
-      "background": { "light": { "color": "#f8fafc" }, "dark": { "color": "#0f172a" } }
-    }
-  ],
   "edge_side_panel": {
     "preferred_width": 400
   },
-  "note_taking": {
-    "preferred_note_width": 400
-  },
-  "scope_extensions": [],
-  "handle_links": "preferred",
-  "launch": { "client_mode": "navigate-existing" }
+  "handle_links": "preferred"
 }
