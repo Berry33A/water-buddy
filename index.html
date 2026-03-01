@@ -5,310 +5,657 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#0ea5e9">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="description" content="Water Buddy - Track hydration with cute pets">
+  <meta name="description" content="Water Buddy - Track hydration with cute pets and gamification">
   <title>Water Buddy</title>
   <link rel="manifest" href="manifest.json">
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    
     :root {
       --primary: #0ea5e9;
       --primary-dark: #0284c7;
-      --success: #10b981;
+      --primary-light: #38bdf8;
+      --accent: #8b5cf6;
+      --accent-light: #a78bfa;
+      --success: #22c55e;
       --warning: #f59e0b;
-      --bg: #f0f9ff;
-      --card: #ffffff;
+      --danger: #ef4444;
+      --bg: #f8fafc;
+      --bg-card: #ffffff;
       --text: #0f172a;
-      --muted: #64748b;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
       --border: #e2e8f0;
+      --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+      --radius: 20px;
+      --radius-sm: 12px;
     }
+    
     .dark {
       --primary: #38bdf8;
       --primary-dark: #0ea5e9;
+      --primary-light: #7dd3fc;
       --bg: #0f172a;
-      --card: #1e293b;
+      --bg-card: #1e293b;
       --text: #f1f5f9;
-      --muted: #94a3b8;
+      --text-secondary: #cbd5e1;
+      --text-muted: #64748b;
       --border: #334155;
+      --shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.3);
     }
+    
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: var(--bg);
-      min-height: 100vh;
       color: var(--text);
-      padding: 12px;
-      padding-bottom: 80px;
+      min-height: 100vh;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
     }
-    .app { max-width: 420px; margin: 0 auto; }
+    
+    .app {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 16px;
+      padding-bottom: 100px;
+    }
+    
+    /* Glassmorphism Card */
+    .glass {
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    .dark .glass {
+      background: rgba(30,41,59,0.8);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
     
     /* Header */
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 0;
-      margin-bottom: 12px;
+      padding: 8px 0 16px;
     }
-    .logo { display: flex; align-items: center; gap: 8px; }
-    .logo-icon { font-size: 28px; }
-    .logo-text { font-size: 20px; font-weight: 800; color: var(--primary); }
-    .header-right { display: flex; align-items: center; gap: 6px; }
-    .coins {
+    .logo {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 10px;
+    }
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: var(--shadow);
+    }
+    .logo-text {
+      font-size: 22px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .coins-display {
+      display: flex;
+      align-items: center;
+      gap: 6px;
       background: linear-gradient(135deg, #fef3c7, #fde68a);
-      padding: 6px 12px;
-      border-radius: 20px;
+      padding: 8px 14px;
+      border-radius: 25px;
       font-weight: 700;
-      font-size: 13px;
+      font-size: 14px;
       color: #92400e;
+      box-shadow: var(--shadow);
     }
     .icon-btn {
-      width: 38px;
-      height: 38px;
+      width: 40px;
+      height: 40px;
       border: none;
-      background: var(--card);
+      background: var(--bg-card);
       border-radius: 12px;
       font-size: 18px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s;
     }
+    .icon-btn:active { transform: scale(0.9); }
     
-    /* Pet Card */
-    .pet-card {
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      border-radius: 24px;
-      padding: 20px;
-      margin-bottom: 12px;
+    /* Hero Card - Main Progress */
+    .hero-card {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 16px;
+      color: white;
       position: relative;
       overflow: hidden;
+      box-shadow: var(--shadow-lg);
     }
-    .pet-card::before {
+    .hero-card::before {
       content: '';
       position: absolute;
       top: -50%;
       right: -50%;
       width: 100%;
       height: 100%;
-      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+      pointer-events: none;
     }
-    .pet-row { display: flex; align-items: center; gap: 16px; position: relative; }
-    .pet-avatar {
-      width: 80px;
-      height: 80px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 50%;
+    .hero-content {
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 48px;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-    .pet-avatar:hover { transform: scale(1.1); }
-    .pet-avatar.happy { animation: bounce 0.5s; }
-    @keyframes bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
-    .pet-info { flex: 1; color: white; }
-    .pet-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
-    .pet-level { font-size: 12px; opacity: 0.9; margin-bottom: 8px; }
-    .xp-bar { height: 6px; background: rgba(255,255,255,0.3); border-radius: 3px; overflow: hidden; }
-    .xp-fill { height: 100%; background: white; border-radius: 3px; transition: width 0.5s; }
-    .pet-actions { display: flex; gap: 8px; margin-top: 12px; }
-    .pet-btn {
-      flex: 1;
-      background: rgba(255,255,255,0.2);
-      border: none;
-      padding: 8px;
-      border-radius: 10px;
-      color: white;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-    }
-    .pet-btn:active { background: rgba(255,255,255,0.3); }
-    .pet-btn .icon { font-size: 18px; }
-    
-    /* Stats Bar */
-    .pet-stats { display: flex; gap: 8px; margin-top: 12px; }
-    .pet-stat {
-      flex: 1;
-      background: rgba(255,255,255,0.15);
-      border-radius: 8px;
-      padding: 8px;
-      text-align: center;
-    }
-    .pet-stat-label { font-size: 10px; color: rgba(255,255,255,0.8); }
-    .pet-stat-bar { height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin-top: 4px; overflow: hidden; }
-    .pet-stat-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
-    .pet-stat-fill.hunger { background: #fbbf24; }
-    .pet-stat-fill.happy { background: #f472b6; }
-    .pet-stat-fill.energy { background: #a78bfa; }
-    
-    /* Daily Reward Banner */
-    .daily-reward {
-      background: linear-gradient(135deg, #fef3c7, #fde68a);
-      border-radius: 14px;
-      padding: 12px 16px;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-    .daily-reward:hover { transform: scale(1.02); }
-    .daily-reward.claimed { opacity: 0.7; cursor: default; }
-    .daily-reward-icon { font-size: 32px; }
-    .daily-reward-content { flex: 1; }
-    .daily-reward-title { font-size: 13px; font-weight: 700; color: #92400e; }
-    .daily-reward-text { font-size: 11px; color: #b45309; }
-    .daily-reward-btn {
-      background: #f59e0b;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 12px;
-    }
-    .daily-reward.claimed .daily-reward-btn { background: #9ca3af; }
-    
-    /* Progress Card */
-    .progress-card {
-      background: var(--card);
-      border-radius: 20px;
-      padding: 20px;
-      margin-bottom: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
-    .progress-header { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
-    .ring {
-      width: 100px;
-      height: 100px;
+      gap: 20px;
       position: relative;
+      z-index: 1;
     }
-    .ring svg { transform: rotate(-90deg); }
-    .ring-text {
+    .progress-ring-container {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      flex-shrink: 0;
+    }
+    .progress-ring-bg {
+      stroke: rgba(255,255,255,0.2);
+    }
+    .progress-ring-fill {
+      stroke: white;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.8s ease;
+      filter: drop-shadow(0 0 8px rgba(255,255,255,0.5));
+    }
+    .progress-ring-text {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       text-align: center;
     }
-    .ring-percent { font-size: 24px; font-weight: 800; }
-    .ring-ml { font-size: 11px; color: var(--muted); }
-    .progress-info { flex: 1; }
-    .progress-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
-    .progress-sub { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
-    .progress-stats { display: flex; gap: 12px; }
-    .progress-stat { text-align: center; }
-    .progress-stat-value { font-size: 16px; font-weight: 700; color: var(--primary); }
-    .progress-stat-label { font-size: 10px; color: var(--muted); }
+    .progress-percent {
+      font-size: 32px;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .progress-ml {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+    .hero-info {
+      flex: 1;
+    }
+    .hero-status {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .hero-sub {
+      font-size: 14px;
+      opacity: 0.9;
+      margin-bottom: 16px;
+    }
+    .hero-stats {
+      display: flex;
+      gap: 16px;
+    }
+    .hero-stat {
+      text-align: center;
+    }
+    .hero-stat-value {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .hero-stat-label {
+      font-size: 11px;
+      opacity: 0.8;
+    }
     
-    /* Drink Types */
-    .drink-types { display: flex; gap: 6px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px; }
+    /* Streak Banner */
+    .streak-banner {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+    }
+    .streak-icon {
+      font-size: 36px;
+    }
+    .streak-content {
+      flex: 1;
+    }
+    .streak-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .streak-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .streak-value {
+      font-size: 24px;
+      font-weight: 800;
+      color: #f59e0b;
+    }
+    
+    /* Pet Card */
+    .pet-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+    }
+    .pet-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .pet-avatar {
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, #dbeafe, #e0e7ff);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      position: relative;
+    }
+    .pet-avatar:active { transform: scale(0.95); }
+    .pet-avatar.happy { animation: petBounce 0.4s ease; }
+    @keyframes petBounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+    }
+    .pet-accessory {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      font-size: 20px;
+    }
+    .pet-info {
+      flex: 1;
+    }
+    .pet-name-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .pet-name {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .pet-level-badge {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .pet-xp-bar {
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .pet-xp-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--success), #4ade80);
+      border-radius: 3px;
+      transition: width 0.5s;
+    }
+    .pet-xp-text {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .pet-stats {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .pet-stat {
+      flex: 1;
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      text-align: center;
+    }
+    .pet-stat-icon {
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+    .pet-stat-bar {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 4px;
+    }
+    .pet-stat-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.3s;
+    }
+    .pet-stat-fill.hunger { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+    .pet-stat-fill.happy { background: linear-gradient(90deg, #f472b6, #ec4899); }
+    .pet-stat-fill.energy { background: linear-gradient(90deg, #a78bfa, #8b5cf6); }
+    .pet-stat-label {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+    .pet-actions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .pet-action {
+      background: var(--bg);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 10px 4px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+    .pet-action:active { transform: scale(0.95); background: var(--border); }
+    .pet-action-icon { font-size: 20px; }
+    .pet-action-label { font-size: 10px; font-weight: 600; color: var(--text-secondary); }
+    
+    /* Daily Reward */
+    .daily-reward {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      box-shadow: var(--shadow);
+    }
+    .daily-reward:hover { transform: scale(1.02); }
+    .daily-reward.claimed {
+      background: var(--border);
+      cursor: default;
+    }
+    .daily-reward:active { transform: scale(0.98); }
+    .daily-reward-icon { font-size: 40px; }
+    .daily-reward-content { flex: 1; }
+    .daily-reward-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #92400e;
+    }
+    .daily-reward.claimed .daily-reward-title { color: var(--text-muted); }
+    .daily-reward-text {
+      font-size: 12px;
+      color: #b45309;
+    }
+    .daily-reward.claimed .daily-reward-text { color: var(--text-muted); }
+    .daily-reward-btn {
+      background: #f59e0b;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .daily-reward.claimed .daily-reward-btn { background: var(--text-muted); }
+    
+    /* Quick Add */
+    .quick-add-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+    }
+    .quick-add-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .drink-types {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
     .drink-type {
       flex-shrink: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 10px 14px;
-      background: var(--card);
+      padding: 12px 16px;
+      background: var(--bg);
       border: 2px solid var(--border);
-      border-radius: 14px;
+      border-radius: var(--radius-sm);
       cursor: pointer;
-      min-width: 60px;
+      transition: all 0.2s;
+      min-width: 70px;
     }
-    .drink-type.selected { border-color: var(--primary); background: rgba(14, 165, 233, 0.1); }
-    .drink-type-icon { font-size: 20px; margin-bottom: 2px; }
-    .drink-type-name { font-size: 10px; font-weight: 600; }
-    
-    /* Add Button */
-    .add-section { text-align: center; margin: 16px 0; }
+    .drink-type.selected {
+      border-color: var(--primary);
+      background: rgba(14, 165, 233, 0.1);
+    }
+    .drink-type-icon { font-size: 24px; margin-bottom: 4px; }
+    .drink-type-name { font-size: 11px; font-weight: 600; }
+    .drink-type-pct { font-size: 9px; color: var(--text-muted); }
     .add-btn {
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
       color: white;
       border: none;
-      padding: 16px 48px;
-      border-radius: 16px;
+      padding: 18px;
+      border-radius: var(--radius-sm);
       font-size: 18px;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);
+      box-shadow: var(--shadow);
       transition: transform 0.2s, box-shadow 0.2s;
     }
-    .add-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(14, 165, 233, 0.5); }
     .add-btn:active { transform: scale(0.98); }
-    .quick-add { display: flex; gap: 6px; justify-content: center; margin-top: 10px; }
-    .quick-btn {
-      background: var(--card);
-      color: var(--primary);
-      border: 2px solid var(--border);
-      padding: 10px 16px;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 13px;
-      cursor: pointer;
+    .quick-amounts {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
     }
-    .quick-btn:hover { border-color: var(--primary); }
+    .quick-amount {
+      flex: 1;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .quick-amount:active { transform: scale(0.95); border-color: var(--primary); }
     
     /* Tabs */
     .tabs {
       display: flex;
-      background: var(--card);
-      border-radius: 14px;
+      background: var(--bg-card);
+      border-radius: var(--radius-sm);
       padding: 4px;
-      margin: 16px 0;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
     }
     .tab {
       flex: 1;
-      padding: 10px;
+      padding: 12px;
       border: none;
       background: none;
       border-radius: 10px;
       font-weight: 600;
       font-size: 13px;
-      color: var(--muted);
+      color: var(--text-muted);
       cursor: pointer;
+      transition: all 0.2s;
     }
-    .tab.active { background: var(--primary); color: white; }
+    .tab.active {
+      background: var(--primary);
+      color: white;
+    }
     .panel { display: none; }
     .panel.active { display: block; }
     
-    /* Card */
+    /* Cards */
     .card {
-      background: var(--card);
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow);
     }
-    .card-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    /* History Log */
+    .log-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .log-item:last-child { border-bottom: none; }
+    .log-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--bg);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .log-content { flex: 1; }
+    .log-title { font-weight: 600; font-size: 14px; }
+    .log-time { font-size: 11px; color: var(--text-muted); }
+    .log-amount { font-weight: 700; color: var(--primary); }
+    
+    /* Stats */
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-label { color: var(--text-secondary); font-size: 14px; }
+    .stat-value { font-weight: 700; font-size: 14px; }
+    .stat-value.good { color: var(--success); }
+    
+    /* Chart */
+    .chart {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      height: 100px;
+      padding: 10px 0;
+      gap: 4px;
+    }
+    .chart-bar {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .chart-fill {
+      width: 100%;
+      max-width: 30px;
+      background: linear-gradient(180deg, var(--primary-light), var(--primary));
+      border-radius: 6px 6px 0 0;
+      min-height: 4px;
+      transition: height 0.3s;
+    }
+    .chart-fill.good { background: linear-gradient(180deg, #4ade80, var(--success)); }
+    .chart-label { font-size: 10px; color: var(--text-muted); margin-top: 6px; }
     
     /* Collection Grid */
-    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    .grid-item {
+    .collection-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .collection-item {
       aspect-ratio: 1;
-      background: var(--border);
-      border-radius: 12px;
+      background: var(--bg);
+      border-radius: var(--radius-sm);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
+      font-size: 28px;
       position: relative;
+      transition: transform 0.2s;
+      cursor: pointer;
     }
-    .grid-item.locked { opacity: 0.4; }
-    .grid-item.locked::after { content: '🔒'; position: absolute; font-size: 10px; bottom: 4px; }
-    .grid-item.owned { background: linear-gradient(135deg, #fef3c7, #fde68a); }
-    .grid-item.equipped { box-shadow: 0 0 0 3px var(--primary); }
-    .grid-item-name { font-size: 8px; margin-top: 2px; }
+    .collection-item:active { transform: scale(0.95); }
+    .collection-item.locked { opacity: 0.4; }
+    .collection-item.locked::after {
+      content: '🔒';
+      position: absolute;
+      font-size: 12px;
+      bottom: 6px;
+    }
+    .collection-item.owned {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+    }
+    .collection-item.equipped {
+      box-shadow: 0 0 0 3px var(--primary);
+    }
+    .collection-item-name {
+      font-size: 9px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
     
     /* Bottom Nav */
     .bottom-nav {
@@ -316,27 +663,29 @@
       bottom: 0;
       left: 0;
       right: 0;
-      background: var(--card);
+      background: var(--bg-card);
       display: flex;
       justify-content: space-around;
-      padding: 10px 0;
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+      padding: 12px 0;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
       z-index: 100;
     }
     .nav-item {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 2px;
-      padding: 4px 12px;
+      gap: 4px;
+      padding: 4px 16px;
       border: none;
       background: none;
-      color: var(--muted);
+      color: var(--text-muted);
       font-size: 10px;
+      font-weight: 600;
       cursor: pointer;
+      transition: color 0.2s;
     }
     .nav-item.active { color: var(--primary); }
-    .nav-item .icon { font-size: 22px; }
+    .nav-item-icon { font-size: 24px; }
     
     /* Modal */
     .modal-backdrop {
@@ -351,18 +700,23 @@
     }
     .modal-backdrop.show { display: flex; }
     .modal {
-      background: var(--card);
-      border-radius: 20px;
+      background: var(--bg-card);
+      border-radius: var(--radius);
       width: 100%;
-      max-width: 360px;
+      max-width: 380px;
       max-height: 80vh;
       overflow: hidden;
+      animation: modalIn 0.3s ease;
+    }
+    @keyframes modalIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
     }
     .modal-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 16px 20px;
+      padding: 18px 20px;
       border-bottom: 1px solid var(--border);
     }
     .modal-title { font-size: 18px; font-weight: 700; }
@@ -370,7 +724,7 @@
       width: 32px;
       height: 32px;
       border: none;
-      background: var(--border);
+      background: var(--bg);
       border-radius: 50%;
       font-size: 18px;
       cursor: pointer;
@@ -379,17 +733,17 @@
       justify-content: center;
     }
     .modal-body {
-      padding: 16px 20px;
+      padding: 18px 20px;
       overflow-y: auto;
       max-height: 60vh;
     }
     .modal-btn {
       width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      padding: 16px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
       color: white;
       border: none;
-      border-radius: 12px;
+      border-radius: var(--radius-sm);
       font-size: 16px;
       font-weight: 700;
       cursor: pointer;
@@ -400,27 +754,27 @@
     .shop-item {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 12px 0;
+      gap: 14px;
+      padding: 14px 0;
       border-bottom: 1px solid var(--border);
     }
     .shop-item:last-child { border-bottom: none; }
-    .shop-icon { font-size: 32px; }
+    .shop-icon { font-size: 36px; }
     .shop-info { flex: 1; }
-    .shop-name { font-weight: 600; }
-    .shop-desc { font-size: 11px; color: var(--muted); }
+    .shop-name { font-weight: 600; font-size: 15px; }
+    .shop-desc { font-size: 12px; color: var(--text-muted); }
     .shop-buy {
       background: linear-gradient(135deg, #fef3c7, #fde68a);
       color: #92400e;
       border: none;
-      padding: 8px 14px;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 12px;
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 13px;
       cursor: pointer;
     }
-    .shop-buy:disabled { opacity: 0.5; cursor: not-allowed; }
     .shop-buy.owned { background: #d1fae5; color: #059669; }
+    .shop-buy:disabled { opacity: 0.5; cursor: not-allowed; }
     
     /* Toast */
     .toast {
@@ -429,31 +783,117 @@
       left: 50%;
       transform: translateX(-50%) translateY(100px);
       background: var(--text);
-      color: var(--card);
-      padding: 12px 24px;
-      border-radius: 12px;
+      color: var(--bg-card);
+      padding: 14px 28px;
+      border-radius: var(--radius-sm);
       font-weight: 600;
+      font-size: 14px;
       z-index: 300;
       opacity: 0;
       transition: all 0.3s;
+      box-shadow: var(--shadow-lg);
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     .toast.success { background: var(--success); }
     .toast.warning { background: var(--warning); }
     
-    /* Stat List */
-    .stat-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
-    .stat-row:last-child { border-bottom: none; }
-    .stat-label { color: var(--muted); }
-    .stat-value { font-weight: 600; }
-    .stat-value.good { color: var(--success); }
+    /* Confetti */
+    @keyframes confettiFall {
+      to { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      top: -10px;
+      animation: confettiFall 3s linear forwards;
+      z-index: 400;
+      pointer-events: none;
+    }
     
-    /* Chart */
-    .chart { display: flex; align-items: flex-end; justify-content: space-between; height: 60px; padding: 8px 0; }
-    .chart-bar { display: flex; flex-direction: column; align-items: center; flex: 1; }
-    .chart-fill { width: 20px; background: var(--primary); border-radius: 3px 3px 0 0; min-height: 3px; }
-    .chart-fill.good { background: var(--success); }
-    .chart-label { font-size: 9px; color: var(--muted); margin-top: 4px; }
+    /* Mood Buttons */
+    .mood-btn {
+      flex: 1;
+      padding: 10px 8px;
+      border: 2px solid var(--border);
+      background: var(--bg);
+      border-radius: 10px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .mood-btn:hover { border-color: var(--primary); background: rgba(14,165,233,0.1); }
+    .mood-btn.selected { border-color: var(--primary); background: var(--primary); color: white; }
+    
+    /* Game Modal */
+    .game-area {
+      width: 100%;
+      height: 300px;
+      background: linear-gradient(180deg, #0ea5e9, #0284c7);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(255,255,255,0.2));
+      cursor: pointer;
+      animation: floatUp linear forwards;
+    }
+    @keyframes floatUp {
+      from { transform: translateY(300px); }
+      to { transform: translateY(-50px); }
+    }
+    .game-score {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.3);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 700;
+    }
+    .game-timer {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0,0,0,0.3);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 700;
+    }
+    
+    /* Leaderboard */
+    .lb-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .lb-row:last-child { border-bottom: none; }
+    .lb-rank {
+      width: 24px;
+      font-weight: 700;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    .lb-rank.top { color: #f59e0b; }
+    .lb-avatar { font-size: 20px; }
+    .lb-name { flex: 1; font-size: 13px; }
+    .lb-score { font-weight: 700; color: var(--primary); font-size: 13px; }
+    
+    /* Responsive */
+    @media (max-width: 380px) {
+      .hero-stats { gap: 12px; }
+      .hero-stat-value { font-size: 16px; }
+      .pet-actions { grid-template-columns: repeat(2, 1fr); }
+      .mood-btn { padding: 8px 4px; font-size: 11px; }
+    }
   </style>
 </head>
 <body>
@@ -461,45 +901,96 @@
     <!-- Header -->
     <div class="header">
       <div class="logo">
-        <span class="logo-icon">💧</span>
+        <div class="logo-icon">💧</div>
         <span class="logo-text">Water Buddy</span>
       </div>
-      <div class="header-right">
-        <div class="coins">🪙 <span id="coins">0</span></div>
+      <div class="header-actions">
+        <div class="coins-display">🪙 <span id="coins">0</span></div>
         <button class="icon-btn" onclick="toggleDark()" id="darkBtn">🌙</button>
-        <button class="icon-btn" onclick="openSettings()">⚙️</button>
       </div>
+    </div>
+    
+    <!-- Hero Progress -->
+    <div class="hero-card">
+      <div class="hero-content">
+        <div class="progress-ring-container">
+          <svg width="120" height="120">
+            <circle class="progress-ring-bg" cx="60" cy="60" r="52" fill="none" stroke-width="10"/>
+            <circle class="progress-ring-fill" id="progressRing" cx="60" cy="60" r="52" fill="none" stroke-width="10" stroke-dasharray="327" stroke-dashoffset="327"/>
+          </svg>
+          <div class="progress-ring-text">
+            <div class="progress-percent" id="percent">0%</div>
+            <div class="progress-ml" id="intake">0 ml</div>
+          </div>
+        </div>
+        <div class="hero-info">
+          <div class="hero-status" id="status">Let's Hydrate!</div>
+          <div class="hero-sub" id="remaining">2000 ml to go</div>
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <div class="hero-stat-value" id="streak">0</div>
+              <div class="hero-stat-label">Day Streak</div>
+            </div>
+            <div class="hero-stat">
+              <div class="hero-stat-value" id="drinks">0</div>
+              <div class="hero-stat-label">Today</div>
+            </div>
+            <div class="hero-stat">
+              <div class="hero-stat-value" id="goalDisplay">2L</div>
+              <div class="hero-stat-label">Goal</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Streak Banner -->
+    <div class="streak-banner">
+      <div class="streak-icon">🔥</div>
+      <div class="streak-content">
+        <div class="streak-title">Keep it Going!</div>
+        <div class="streak-sub">Drink daily to build your streak</div>
+      </div>
+      <div class="streak-value" id="streakBig">0</div>
     </div>
     
     <!-- Pet Card -->
     <div class="pet-card">
-      <div class="pet-row">
-        <div class="pet-avatar" id="petAvatar" onclick="petTap()">💧</div>
-        <div class="pet-info">
-          <div class="pet-name" id="petName">Droplet</div>
-          <div class="pet-level">Level <span id="level">1</span> • <span id="xp">0</span>/<span id="xpMax">100</span> XP</div>
-          <div class="xp-bar"><div class="xp-fill" id="xpFill" style="width:0%"></div></div>
+      <div class="pet-header">
+        <div class="pet-avatar" id="petAvatar" onclick="tapPet()">💧
+          <div class="pet-accessory" id="petAccessory"></div>
         </div>
-      </div>
-      <div class="pet-actions">
-        <button class="pet-btn" onclick="feedPet()"><span class="icon">🍎</span>Feed</button>
-        <button class="pet-btn" onclick="playPet()"><span class="icon">🎾</span>Play</button>
-        <button class="pet-btn" onclick="petPet()"><span class="icon">🤚</span>Pet</button>
-        <button class="pet-btn" onclick="openShop()"><span class="icon">🛒</span>Shop</button>
+        <div class="pet-info">
+          <div class="pet-name-row">
+            <span class="pet-name" id="petName">Droplet</span>
+            <span class="pet-level-badge">Lv. <span id="level">1</span></span>
+          </div>
+          <div class="pet-xp-bar"><div class="pet-xp-fill" id="xpFill" style="width:0%"></div></div>
+          <div class="pet-xp-text"><span id="xp">0</span> / <span id="xpMax">100</span> XP</div>
+        </div>
       </div>
       <div class="pet-stats">
         <div class="pet-stat">
-          <div class="pet-stat-label">🍖 Hunger</div>
+          <div class="pet-stat-icon">🍖</div>
           <div class="pet-stat-bar"><div class="pet-stat-fill hunger" id="hungerBar" style="width:100%"></div></div>
+          <div class="pet-stat-label">Hunger</div>
         </div>
         <div class="pet-stat">
-          <div class="pet-stat-label">💕 Happy</div>
+          <div class="pet-stat-icon">💕</div>
           <div class="pet-stat-bar"><div class="pet-stat-fill happy" id="happyBar" style="width:100%"></div></div>
+          <div class="pet-stat-label">Happy</div>
         </div>
         <div class="pet-stat">
-          <div class="pet-stat-label">⚡ Energy</div>
+          <div class="pet-stat-icon">⚡</div>
           <div class="pet-stat-bar"><div class="pet-stat-fill energy" id="energyBar" style="width:100%"></div></div>
+          <div class="pet-stat-label">Energy</div>
         </div>
+      </div>
+      <div class="pet-actions">
+        <button class="pet-action" onclick="feedPet()"><span class="pet-action-icon">🍎</span><span class="pet-action-label">Feed</span></button>
+        <button class="pet-action" onclick="playPet()"><span class="pet-action-icon">🎾</span><span class="pet-action-label">Play</span></button>
+        <button class="pet-action" onclick="petPet()"><span class="pet-action-icon">🤚</span><span class="pet-action-label">Pet</span></button>
+        <button class="pet-action" onclick="openShop()"><span class="pet-action-icon">🛒</span><span class="pet-action-label">Shop</span></button>
       </div>
     </div>
     
@@ -508,48 +999,72 @@
       <div class="daily-reward-icon">🎁</div>
       <div class="daily-reward-content">
         <div class="daily-reward-title">Daily Reward</div>
-        <div class="daily-reward-text" id="dailyText">Claim 50 coins + 25 XP!</div>
+        <div class="daily-reward-text" id="dailyText">Claim your daily bonus!</div>
       </div>
       <button class="daily-reward-btn" id="dailyBtn">Claim</button>
     </div>
     
-    <!-- Progress Card -->
-    <div class="progress-card">
-      <div class="progress-header">
-        <div class="ring">
-          <svg width="100" height="100">
-            <circle cx="50" cy="50" r="42" fill="none" stroke="var(--border)" stroke-width="8"/>
-            <circle id="progressRing" cx="50" cy="50" r="42" fill="none" stroke="var(--primary)" stroke-width="8" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="264"/>
-          </svg>
-          <div class="ring-text">
-            <div class="ring-percent" id="percent">0%</div>
-            <div class="ring-ml" id="intake">0 ml</div>
-          </div>
-        </div>
-        <div class="progress-info">
-          <div class="progress-title" id="status">Let's hydrate!</div>
-          <div class="progress-sub" id="remaining">2000 ml to go</div>
-          <div class="progress-stats">
-            <div class="progress-stat"><div class="progress-stat-value" id="streak">0</div><div class="progress-stat-label">Streak</div></div>
-            <div class="progress-stat"><div class="progress-stat-value" id="drinks">0</div><div class="progress-stat-label">Drinks</div></div>
-            <div class="progress-stat"><div class="progress-stat-value" id="goalVal">2000</div><div class="progress-stat-label">Goal</div></div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Drink Types -->
+    <!-- Quick Add -->
+    <div class="quick-add-card">
+      <div class="quick-add-title">💧 Quick Add</div>
       <div class="drink-types" id="drinkTypes"></div>
-      
-      <!-- Add Button -->
-      <div class="add-section">
-        <button class="add-btn" onclick="addWater(250)">+ Add Water</button>
-        <div class="quick-add">
-          <button class="quick-btn" onclick="addWater(150)">150</button>
-          <button class="quick-btn" onclick="addWater(250)">250</button>
-          <button class="quick-btn" onclick="addWater(500)">500</button>
-          <button class="quick-btn" onclick="addWater(750)">750</button>
+      <button class="add-btn" onclick="addWater(250)">+ Add Water</button>
+      <div class="quick-amounts">
+        <button class="quick-amount" onclick="addWater(150)">150ml</button>
+        <button class="quick-amount" onclick="addWater(250)">250ml</button>
+        <button class="quick-amount" onclick="addWater(500)">500ml</button>
+        <button class="quick-amount" onclick="addWater(750)">750ml</button>
+      </div>
+    </div>
+    
+    <!-- Hydration Score Card -->
+    <div class="card" style="background:linear-gradient(135deg,#8b5cf6,#6366f1);color:white;margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:12px;opacity:0.9">Hydration Score</div>
+          <div style="font-size:28px;font-weight:800" id="scoreValue">0</div>
+          <div style="font-size:11px;opacity:0.8" id="scoreTip">Start drinking!</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:48px" id="scoreEmoji">🎯</div>
+          <div style="font-size:10px;opacity:0.8" id="scoreRank">Beginner</div>
         </div>
       </div>
+    </div>
+    
+    <!-- Mini Game Card -->
+    <div class="card" style="cursor:pointer;margin-bottom:16px" onclick="openGame()">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="font-size:40px">🫧</div>
+        <div style="flex:1">
+          <div style="font-weight:700">Bubble Pop Game</div>
+          <div style="font-size:12px;color:var(--text-muted)">Pop bubbles to earn bonus coins!</div>
+        </div>
+        <div style="background:linear-gradient(135deg,#22c55e,#16a34a);color:white;padding:8px 16px;border-radius:10px;font-weight:700;font-size:13px">PLAY</div>
+      </div>
+    </div>
+    
+    <!-- Leaderboard Preview -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">🏆 Global Ranking</div>
+      <div id="leaderboard"></div>
+      <div style="text-align:center;margin-top:12px">
+        <div style="font-size:12px;color:var(--text-muted)">Your rank</div>
+        <div style="font-size:24px;font-weight:800;color:var(--primary)" id="myRank">#127</div>
+      </div>
+    </div>
+    
+    <!-- Mood Tracker -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">😊 How do you feel?</div>
+      <div style="display:flex;gap:8px" id="moodButtons">
+        <button class="mood-btn" onclick="logMood('😊')">😊 Great</button>
+        <button class="mood-btn" onclick="logMood('🙂')">😊 Good</button>
+        <button class="mood-btn" onclick="logMood('😐')">😐 Okay</button>
+        <button class="mood-btn" onclick="logMood('😴')">😴 Tired</button>
+        <button class="mood-btn" onclick="logMood('😫')">😫 Bad</button>
+      </div>
+      <div id="moodLog" style="margin-top:12px;font-size:12px;color:var(--text-muted)"></div>
     </div>
     
     <!-- Tabs -->
@@ -559,7 +1074,7 @@
       <button class="tab" onclick="showTab('items')">Items</button>
     </div>
     
-    <!-- Today Tab -->
+    <!-- Today Panel -->
     <div id="todayTab" class="panel active">
       <div class="card" id="logCard" style="display:none">
         <div class="card-title">📋 Today's Log</div>
@@ -567,76 +1082,76 @@
       </div>
       <div class="card">
         <div class="card-title">💡 Daily Tip</div>
-        <div id="tip" style="font-size:13px;color:var(--muted);line-height:1.5"></div>
+        <div id="tip" style="color:var(--text-secondary);font-size:14px;line-height:1.6"></div>
       </div>
     </div>
     
-    <!-- Stats Tab -->
+    <!-- Stats Panel -->
     <div id="statsTab" class="panel">
       <div class="card">
-        <div class="card-title">📊 Last 7 Days</div>
+        <div class="card-title">📊 Weekly Progress</div>
         <div class="chart" id="chart"></div>
       </div>
       <div class="card">
         <div class="card-title">📈 Statistics</div>
         <div class="stat-row"><span class="stat-label">Total Hydrated</span><span class="stat-value" id="totalMl">0 L</span></div>
-        <div class="stat-row"><span class="stat-label">Goals Met</span><span class="stat-value good" id="goalsMet">0</span></div>
+        <div class="stat-row"><span class="stat-label">Goals Achieved</span><span class="stat-value good" id="goalsMet">0</span></div>
         <div class="stat-row"><span class="stat-label">Best Streak</span><span class="stat-value" id="bestStreak">0 days</span></div>
-        <div class="stat-row"><span class="stat-label">Bubbles Popped</span><span class="stat-value" id="bubbles">0</span></div>
+        <div class="stat-row"><span class="stat-label">Average Daily</span><span class="stat-value" id="avgDaily">0 ml</span></div>
       </div>
     </div>
     
-    <!-- Items Tab -->
+    <!-- Items Panel -->
     <div id="itemsTab" class="panel">
       <div class="card">
         <div class="card-title">🐾 Pets (<span id="petCount">1</span>/6)</div>
-        <div class="grid" id="petGrid"></div>
+        <div class="collection-grid" id="petGrid"></div>
       </div>
       <div class="card">
         <div class="card-title">🎩 Accessories (<span id="accCount">0</span>/6)</div>
-        <div class="grid" id="accGrid"></div>
+        <div class="collection-grid" id="accGrid"></div>
       </div>
       <div class="card">
         <div class="card-title">🏅 Achievements (<span id="achCount">0</span>/10)</div>
-        <div class="grid" id="achGrid"></div>
+        <div class="collection-grid" id="achGrid"></div>
       </div>
     </div>
   </div>
   
   <!-- Bottom Nav -->
   <div class="bottom-nav">
-    <button class="nav-item active" onclick="showTab('today')"><span class="icon">💧</span><span>Add</span></button>
-    <button class="nav-item" onclick="showTab('stats')"><span class="icon">📊</span><span>Stats</span></button>
-    <button class="nav-item" onclick="showTab('items')"><span class="icon">🎒</span><span>Items</span></button>
-    <button class="nav-item" onclick="openShop()"><span class="icon">🛒</span><span>Shop</span></button>
+    <button class="nav-item active" onclick="showTab('today')"><span class="nav-item-icon">💧</span><span>Add</span></button>
+    <button class="nav-item" onclick="showTab('stats')"><span class="nav-item-icon">📊</span><span>Stats</span></button>
+    <button class="nav-item" onclick="showTab('items')"><span class="nav-item-icon">🎒</span><span>Items</span></button>
+    <button class="nav-item" onclick="openSettings()"><span class="nav-item-icon">⚙️</span><span>Settings</span></button>
   </div>
   
   <!-- Toast -->
   <div class="toast" id="toast"></div>
   
   <!-- Shop Modal -->
-  <div class="modal-backdrop" id="shopModal" onclick="closeModal(event, 'shopModal')">
+  <div class="modal-backdrop" id="shopModal" onclick="closeModal(event,'shopModal')">
     <div class="modal" onclick="event.stopPropagation()">
       <div class="modal-header">
         <div class="modal-title">🛒 Shop</div>
-        <button class="modal-close" onclick="closeModal(null, 'shopModal')">✕</button>
+        <button class="modal-close" onclick="closeModal(null,'shopModal')">✕</button>
       </div>
       <div class="modal-body" id="shopItems"></div>
     </div>
   </div>
   
   <!-- Settings Modal -->
-  <div class="modal-backdrop" id="settingsModal" onclick="closeModal(event, 'settingsModal')">
+  <div class="modal-backdrop" id="settingsModal" onclick="closeModal(event,'settingsModal')">
     <div class="modal" onclick="event.stopPropagation()">
       <div class="modal-header">
         <div class="modal-title">⚙️ Settings</div>
-        <button class="modal-close" onclick="closeModal(null, 'settingsModal')">✕</button>
+        <button class="modal-close" onclick="closeModal(null,'settingsModal')">✕</button>
       </div>
       <div class="modal-body">
-        <div class="stat-row"><span class="stat-label">Daily Goal</span><span><input type="number" id="goalInput" value="2000" style="width:60px;padding:6px;border-radius:6px;border:1px solid var(--border)"> ml</span></div>
-        <div class="stat-row"><span class="stat-label">Pet Name</span><span><input type="text" id="petNameInput" value="Droplet" style="width:80px;padding:6px;border-radius:6px;border:1px solid var(--border)"></span></div>
-        <div class="stat-row"><span class="stat-label">Dark Mode</span><button onclick="toggleDark()" id="darkToggle" style="padding:6px 12px;border-radius:8px;border:none;background:var(--border);cursor:pointer">Off</button></div>
-        <button class="modal-btn" onclick="saveSettings()">Save</button>
+        <div class="stat-row"><span class="stat-label">Daily Goal</span><span><input type="number" id="goalInput" value="2000" style="width:70px;padding:8px;border-radius:8px;border:1px solid var(--border);font-size:14px"> ml</span></div>
+        <div class="stat-row"><span class="stat-label">Pet Name</span><span><input type="text" id="petNameInput" value="Droplet" style="width:90px;padding:8px;border-radius:8px;border:1px solid var(--border);font-size:14px"></span></div>
+        <div class="stat-row"><span class="stat-label">Dark Mode</span><button onclick="toggleDark()" id="darkToggle" style="padding:8px 16px;border-radius:8px;border:none;background:var(--bg);font-weight:600">Off</button></div>
+        <button class="modal-btn" onclick="saveSettings()">Save Changes</button>
         <button class="modal-btn" style="background:#fee2e2;color:#b91c1c;margin-top:8px" onclick="if(confirm('Delete all data?')){localStorage.clear();location.reload()}">Reset All Data</button>
       </div>
     </div>
@@ -646,17 +1161,37 @@
   <div class="modal-backdrop" id="celebModal">
     <div class="modal" onclick="event.stopPropagation()">
       <div class="modal-header">
-        <div class="modal-title" id="celebTitle">🎉 Goal Achieved!</div>
-        <button class="modal-close" onclick="closeModal(null, 'celebModal')">✕</button>
+        <div class="modal-title">🎉 Congratulations!</div>
+        <button class="modal-close" onclick="closeModal(null,'celebModal')">✕</button>
       </div>
       <div class="modal-body" style="text-align:center">
-        <div style="font-size:60px;margin:20px 0" id="celebEmoji">🎉</div>
-        <div style="font-size:14px;color:var(--muted);margin-bottom:16px" id="celebText">Amazing work!</div>
-        <div style="display:flex;gap:12px;justify-content:center">
-          <span style="background:#d1fae5;padding:10px 20px;border-radius:10px;font-weight:700;color:#059669">+50 XP</span>
-          <span style="background:#fef3c7;padding:10px 20px;border-radius:10px;font-weight:700;color:#d97706">+10 🪙</span>
+        <div style="font-size:72px;margin:20px 0" id="celebEmoji">🎉</div>
+        <div style="font-size:16px;color:var(--text-secondary);margin-bottom:16px" id="celebText">You reached your goal!</div>
+        <div style="display:flex;gap:12px;justify-content:center;margin-bottom:16px">
+          <span style="background:#d1fae5;padding:12px 20px;border-radius:12px;font-weight:700;color:#059669">+50 XP</span>
+          <span style="background:#fef3c7;padding:12px 20px;border-radius:12px;font-weight:700;color:#d97706">+10 🪙</span>
         </div>
-        <button class="modal-btn" onclick="closeModal(null, 'celebModal')">Awesome!</button>
+        <button class="modal-btn" onclick="closeModal(null,'celebModal')">Awesome!</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Game Modal -->
+  <div class="modal-backdrop" id="gameModal" onclick="closeModal(event,'gameModal')">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title">🫧 Bubble Pop</div>
+        <button class="modal-close" onclick="endGame()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="game-area" id="gameArea">
+          <div class="game-timer" id="gameTimer">30s</div>
+          <div class="game-score" id="gameScore">0</div>
+        </div>
+        <div style="text-align:center;margin-top:16px">
+          <div style="font-size:14px;color:var(--text-secondary)">Tap bubbles to earn coins!</div>
+          <button class="modal-btn" id="gameStartBtn" onclick="startGame()">Start Game (5 🪙)</button>
+        </div>
       </div>
     </div>
   </div>
@@ -689,7 +1224,7 @@
       { id: 'goals5', emoji: '🎯', name: '5 Goals', check: s => s.goalsMet >= 5 },
       { id: 'goals30', emoji: '💎', name: '30 Goals', check: s => s.goalsMet >= 30 },
       { id: 'big', emoji: '🦁', name: 'Big Gulp', check: s => s.biggest >= 500 },
-      { id: 'bubbles', emoji: '🫧', name: '100 Bubbles', check: s => s.bubbles >= 100 }
+      { id: 'week', emoji: '📅', name: '1 Week', check: s => s.goalsMet >= 7 }
     ];
     const DRINKS = [
       { id: 'water', emoji: '💧', name: 'Water', mult: 1 },
@@ -698,20 +1233,27 @@
       { id: 'juice', emoji: '🧃', name: 'Juice', mult: 0.85 }
     ];
     const TIPS = [
-      "Start your day with water to boost metabolism!",
-      "Your brain is 75% water - stay sharp!",
-      "Dehydration causes fatigue - drink up!",
-      "Water helps maintain healthy skin!",
-      "Set reminders to drink water regularly.",
-      "Add lemon for extra vitamin C!",
-      "Drink water before meals for better digestion."
+      "Start your morning with a glass of water to kickstart your metabolism.",
+      "Your brain is 75% water - stay hydrated for better focus!",
+      "Feeling tired? You might just be dehydrated. Drink up!",
+      "Water helps flush out toxins and keeps your skin glowing.",
+      "Set reminders to drink water throughout the day.",
+      "Add a slice of lemon for extra vitamin C and flavor.",
+      "Drink a glass of water before each meal for better digestion."
     ];
     
     // State
     let state = {};
     let history = {};
-    const KEY = 'water-buddy-v4';
-    const HIST = 'water-buddy-hist-v4';
+    let gameInterval = null;
+    let gameActive = false;
+    let gameTimer = 30;
+    let gameScore = 0;
+    const KEY = 'water-buddy-v5';
+    const HIST = 'water-buddy-hist-v5';
+    
+    // Fake leaderboard names
+    const LEADERBOARD_NAMES = ['AquaQueen','HydroHero','WaterWiz','DripKing','SplashMaster','H2OHero','DrinkMaster','HydratePro','AquaLover','WaterFan'];
     
     function today() { return new Date().toISOString().split('T')[0]; }
     
@@ -734,28 +1276,10 @@
         state = data;
       }
       if (!state.coins) state = {
-        date: today(),
-        goal: 2000,
-        intake: 0,
-        logs: [],
-        xp: 0,
-        level: 1,
-        coins: 0,
-        streak: 0,
-        lastGoal: null,
-        pets: ['droplet'],
-        pet: 'droplet',
-        accessories: [],
-        accEquipped: null,
-        achievements: [],
-        drinkType: 'water',
-        dark: false,
-        petName: 'Droplet',
-        hunger: 100,
-        happy: 100,
-        energy: 100,
-        bubbles: 0,
-        dailyClaimed: false,
+        date: today(), goal: 2000, intake: 0, logs: [], xp: 0, level: 1, coins: 0, streak: 0,
+        lastGoal: null, pets: ['droplet'], pet: 'droplet', accessories: [], accEquipped: null,
+        achievements: [], drinkType: 'water', dark: false, petName: 'Droplet',
+        hunger: 100, happy: 100, energy: 100, dailyClaimed: false,
         stats: { totalMl: 0, drinks: 0, goalsMet: 0, biggest: 0 }
       };
       
@@ -766,14 +1290,8 @@
       updateUI();
     }
     
-    function save() {
-      localStorage.setItem(KEY, JSON.stringify(state));
-    }
-    
-    function saveHistory(date, intake, goal) {
-      history[date] = { intake, goal, goalMet: intake >= goal };
-      localStorage.setItem(HIST, JSON.stringify(history));
-    }
+    function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
+    function saveHistory(date, intake, goal) { history[date] = { intake, goal, goalMet: intake >= goal }; localStorage.setItem(HIST, JSON.stringify(history)); }
     
     function addWater(amt) {
       const drink = DRINKS.find(d => d.id === state.drinkType) || DRINKS[0];
@@ -787,14 +1305,9 @@
       state.happy = Math.min(100, state.happy + 10);
       state.xp += 10;
       state.coins += Math.ceil(amt / 100);
-      
       checkLevel();
       checkAchievements();
-      
-      if (state.intake >= state.goal && state.intake - ml < state.goal) {
-        goalMet();
-      }
-      
+      if (state.intake >= state.goal && state.intake - ml < state.goal) goalMet();
       save();
       updateUI();
       showToast(`${drink.emoji} +${ml}ml!`, 'success');
@@ -809,19 +1322,17 @@
       state.coins += 10;
       checkLevel();
       showModal('celebModal');
+      createConfetti();
     }
     
     function checkLevel() {
-      const xpNeeded = state.level * 100;
-      if (state.xp >= xpNeeded) {
-        state.level++;
-        showToast(`🎉 Level ${state.level}!`, 'success');
-      }
+      const xpNeed = state.level * 100;
+      if (state.xp >= xpNeed) { state.level++; showToast(`🎉 Level ${state.level}!`, 'success'); }
     }
     
     function checkAchievements() {
       ACHIEVEMENTS.forEach(a => {
-        if (!state.achievements.includes(a.id) && a.check({ ...state.stats, streak: state.streak, bubbles: state.bubbles })) {
+        if (!state.achievements.includes(a.id) && a.check({ ...state.stats, streak: state.streak })) {
           state.achievements.push(a.id);
           state.coins += 20;
           showToast(`🏅 ${a.name}!`, 'success');
@@ -866,118 +1377,169 @@
       animatePet();
     }
     
-    function petPet() {
-      state.happy = Math.min(100, state.happy + 5);
-      state.xp += 3;
-      save();
-      updateUI();
-      animatePet();
-    }
-    
-    function petTap() {
-      animatePet();
-    }
-    
-    function animatePet() {
-      const el = document.getElementById('petAvatar');
-      el.classList.add('happy');
-      setTimeout(() => el.classList.remove('happy'), 500);
-    }
+    function petPet() { state.happy = Math.min(100, state.happy + 5); state.xp += 3; save(); updateUI(); animatePet(); }
+    function tapPet() { animatePet(); }
+    function animatePet() { const el = document.getElementById('petAvatar'); el.classList.add('happy'); setTimeout(() => el.classList.remove('happy'), 400); }
     
     function openShop() {
-      let html = '<div style="font-size:12px;color:var(--muted);margin-bottom:12px">Your balance: 🪙 ' + state.coins + '</div>';
-      
-      html += '<div style="font-weight:700;margin:12px 0 8px">🐾 Pets</div>';
+      let html = `<div style="font-size:12px;color:var(--text-muted);margin-bottom:16px;text-align:center">Balance: 🪙 ${state.coins}</div>`;
+      html += `<div style="font-weight:700;margin:12px 0 8px;font-size:13px">🐾 Pets</div>`;
       PETS.forEach(p => {
         const owned = state.pets.includes(p.id);
         const equipped = state.pet === p.id;
         const canBuy = state.coins >= p.cost && !owned;
-        html += `<div class="shop-item">
-          <span class="shop-icon">${p.emoji}</span>
-          <div class="shop-info"><div class="shop-name">${p.name}</div><div class="shop-desc">${owned ? 'Owned' : p.cost + ' 🪙'}</div></div>
-          <button class="shop-buy ${owned ? 'owned' : ''}" ${!owned && !canBuy ? 'disabled' : ''} onclick="${owned ? `equipPet('${p.id}')` : `buyPet('${p.id}')`}">${equipped ? '✓' : owned ? 'Equip' : p.cost + ' 🪙'}</button>
-        </div>`;
+        html += `<div class="shop-item"><span class="shop-icon">${p.emoji}</span><div class="shop-info"><div class="shop-name">${p.name}</div><div class="shop-desc">${owned ? 'Owned' : p.cost + ' 🪙'}</div></div><button class="shop-buy ${owned ? 'owned' : ''}" ${!owned && !canBuy ? 'disabled' : ''} onclick="${owned ? `equipPet('${p.id}')` : `buyPet('${p.id}')`}">${equipped ? '✓' : owned ? 'Equip' : p.cost + ' 🪙'}</button></div>`;
       });
-      
-      html += '<div style="font-weight:700;margin:16px 0 8px">🎩 Accessories</div>';
+      html += `<div style="font-weight:700;margin:16px 0 8px;font-size:13px">🎩 Accessories</div>`;
       ACCESSORIES.forEach(a => {
         const owned = state.accessories.includes(a.id);
         const equipped = state.accEquipped === a.id;
         const canBuy = state.coins >= a.cost && !owned;
-        html += `<div class="shop-item">
-          <span class="shop-icon">${a.emoji}</span>
-          <div class="shop-info"><div class="shop-name">${a.name}</div><div class="shop-desc">${owned ? 'Owned' : a.cost + ' 🪙'}</div></div>
-          <button class="shop-buy ${owned ? 'owned' : ''}" ${!owned && !canBuy ? 'disabled' : ''} onclick="${owned ? `equipAcc('${a.id}')` : `buyAcc('${a.id}')`}">${equipped ? '✓' : owned ? 'Equip' : a.cost + ' 🪙'}</button>
-        </div>`;
+        html += `<div class="shop-item"><span class="shop-icon">${a.emoji}</span><div class="shop-info"><div class="shop-name">${a.name}</div><div class="shop-desc">${owned ? 'Owned' : a.cost + ' 🪙'}</div></div><button class="shop-buy ${owned ? 'owned' : ''}" ${!owned && !canBuy ? 'disabled' : ''} onclick="${owned ? `equipAcc('${a.id}')` : `buyAcc('${a.id}')`}">${equipped ? '✓' : owned ? 'Equip' : a.cost + ' 🪙'}</button></div>`;
       });
-      
       document.getElementById('shopItems').innerHTML = html;
       showModal('shopModal');
     }
     
-    function buyPet(id) {
-      const p = PETS.find(x => x.id === id);
-      if (state.coins >= p.cost && !state.pets.includes(id)) {
-        state.coins -= p.cost;
-        state.pets.push(id);
-        showToast(`🎉 Got ${p.emoji}!`, 'success');
-        save();
-        updateUI();
-        openShop();
-      }
-    }
-    
-    function equipPet(id) {
-      if (state.pets.includes(id)) {
-        state.pet = id;
-        showToast('Equipped!', 'success');
-        save();
-        updateUI();
-        openShop();
-      }
-    }
-    
-    function buyAcc(id) {
-      const a = ACCESSORIES.find(x => x.id === id);
-      if (state.coins >= a.cost && !state.accessories.includes(id)) {
-        state.coins -= a.cost;
-        state.accessories.push(id);
-        showToast(`🎩 Got ${a.emoji}!`, 'success');
-        save();
-        updateUI();
-        openShop();
-      }
-    }
-    
-    function equipAcc(id) {
-      state.accEquipped = state.accEquipped === id ? null : id;
-      showToast(state.accEquipped ? 'Equipped!' : 'Removed!', 'success');
-      save();
-      updateUI();
-      openShop();
-    }
+    function buyPet(id) { const p = PETS.find(x => x.id === id); if (state.coins >= p.cost && !state.pets.includes(id)) { state.coins -= p.cost; state.pets.push(id); showToast(`🎉 Got ${p.emoji}!`, 'success'); save(); updateUI(); openShop(); } }
+    function equipPet(id) { if (state.pets.includes(id)) { state.pet = id; showToast('Equipped!', 'success'); save(); updateUI(); openShop(); } }
+    function buyAcc(id) { const a = ACCESSORIES.find(x => x.id === id); if (state.coins >= a.cost && !state.accessories.includes(id)) { state.coins -= a.cost; state.accessories.push(id); showToast(`🎩 Got ${a.emoji}!`, 'success'); save(); updateUI(); openShop(); } }
+    function equipAcc(id) { state.accEquipped = state.accEquipped === id ? null : id; showToast(state.accEquipped ? 'Equipped!' : 'Removed!', 'success'); save(); updateUI(); openShop(); }
     
     function showModal(id) { document.getElementById(id).classList.add('show'); }
     function closeModal(e, id) { if (!e || e.target === e.currentTarget) document.getElementById(id).classList.remove('show'); }
     
-    function openSettings() { showModal('settingsModal'); document.getElementById('goalInput').value = state.goal; document.getElementById('petNameInput').value = state.petName; }
+    // Hydration Score
+    function calcScore() {
+      let score = 0;
+      const hour = new Date().getHours();
+      const pct = state.intake / state.goal;
+      // Morning bonus (6-10am)
+      if (hour >= 6 && hour < 10 && state.logs.some(l => new Date(l.time).getHours() < 10)) score += 20;
+      // Progress score
+      score += Math.round(pct * 50);
+      // Streak bonus
+      score += state.streak * 2;
+      // Level bonus
+      score += state.level * 5;
+      return Math.min(100, score);
+    }
     
-    function saveSettings() {
-      state.goal = parseInt(document.getElementById('goalInput').value) || 2000;
-      state.petName = document.getElementById('petNameInput').value || 'Droplet';
+    function updateScoreUI() {
+      const score = calcScore();
+      document.getElementById('scoreValue').textContent = score;
+      let emoji = '🎯', rank = 'Beginner', tip = 'Start drinking!';
+      if (score >= 80) { emoji = '🏆'; rank = 'Hydration Master'; tip = 'Outstanding!'; }
+      else if (score >= 60) { emoji = '⭐'; rank = 'Hydration Pro'; tip = 'Great progress!'; }
+      else if (score >= 40) { emoji = '💪'; rank = 'Getting There'; tip = 'Keep going!'; }
+      else if (score >= 20) { emoji = '🌱'; rank = 'Sprout'; tip = 'Good start!'; }
+      document.getElementById('scoreEmoji').textContent = emoji;
+      document.getElementById('scoreRank').textContent = rank;
+      document.getElementById('scoreTip').textContent = tip;
+    }
+    
+    // Mini Game
+    function openGame() { showModal('gameModal'); }
+    
+    function startGame() {
+      if (state.coins < 5) { showToast('Need 5 🪙 to play', 'warning'); return; }
+      state.coins -= 5;
       save();
       updateUI();
-      closeModal(null, 'settingsModal');
-      showToast('Saved!', 'success');
+      gameActive = true;
+      gameScore = 0;
+      gameTimer = 30;
+      document.getElementById('gameScore').textContent = '0';
+      document.getElementById('gameTimer').textContent = '30s';
+      document.getElementById('gameStartBtn').style.display = 'none';
+      spawnBubbles();
+      gameInterval = setInterval(() => {
+        gameTimer--;
+        document.getElementById('gameTimer').textContent = gameTimer + 's';
+        if (gameTimer <= 0) endGame();
+      }, 1000);
     }
     
-    function toggleDark() {
-      state.dark = !state.dark;
-      document.body.classList.toggle('dark', state.dark);
-      document.getElementById('darkBtn').textContent = state.dark ? '☀️' : '🌙';
-      document.getElementById('darkToggle').textContent = state.dark ? 'On' : 'Off';
-      save();
+    function spawnBubbles() {
+      if (!gameActive) return;
+      const area = document.getElementById('gameArea');
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      const size = 30 + Math.random() * 40;
+      bubble.style.width = size + 'px';
+      bubble.style.height = size + 'px';
+      bubble.style.left = Math.random() * (area.offsetWidth - size) + 'px';
+      bubble.style.animationDuration = (2 + Math.random() * 3) + 's';
+      bubble.onclick = () => popBubble(bubble, Math.round(size/10));
+      area.appendChild(bubble);
+      setTimeout(() => bubble.remove(), 5000);
+      if (gameActive) setTimeout(spawnBubbles, 300 + Math.random() * 400);
     }
+    
+    function popBubble(bubble, points) {
+      if (!gameActive) return;
+      gameScore += points;
+      document.getElementById('gameScore').textContent = gameScore;
+      bubble.remove();
+    }
+    
+    function endGame() {
+      gameActive = false;
+      clearInterval(gameInterval);
+      const coins = Math.floor(gameScore / 2);
+      state.coins += coins;
+      state.xp += gameScore;
+      save();
+      updateUI();
+      showToast(`Game over! +${coins} 🪙 +${gameScore} XP`, 'success');
+      document.getElementById('gameStartBtn').style.display = 'block';
+      document.getElementById('gameStartBtn').textContent = 'Play Again (5 🪙)';
+      document.getElementById('gameArea').querySelectorAll('.bubble').forEach(b => b.remove());
+    }
+    
+    // Leaderboard
+    function updateLeaderboard() {
+      const myScore = state.stats.totalMl;
+      let html = '';
+      const fakeScores = [125000, 98000, 87500, 72000, 65000, 58000, 52000, 48000, 42000, 38000];
+      for (let i = 0; i < 5; i++) {
+        const isMe = i === 2;
+        html += `<div class="lb-row" style="${isMe ? 'background:rgba(14,165,233,0.1);border-radius:8px;padding:8px' : ''}">
+          <span class="lb-rank ${i < 3 ? 'top' : ''}">#${i + 1}</span>
+          <span class="lb-avatar">${isMe ? '💧' : ['👑','🥈','🥉','⭐','🌟'][i]}</span>
+          <span class="lb-name">${isMe ? state.petName + ' (You)' : LEADERBOARD_NAMES[i]}</span>
+          <span class="lb-score">${(isMe ? myScore : fakeScores[i] + Math.floor(Math.random() * 1000)).toLocaleString()}ml</span>
+        </div>`;
+      }
+      document.getElementById('leaderboard').innerHTML = html;
+      const rank = Math.max(1, Math.floor((500000 - myScore) / 4000) + Math.floor(Math.random() * 50));
+      document.getElementById('myRank').textContent = '#' + rank;
+    }
+    
+    // Mood Tracking
+    function logMood(mood) {
+      if (!state.moods) state.moods = [];
+      state.moods.push({ mood, time: Date.now(), intake: state.intake });
+      if (state.moods.length > 30) state.moods.shift();
+      save();
+      document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+      event.target.classList.add('selected');
+      updateMoodLog();
+      showToast(`Logged: ${mood}`, 'success');
+    }
+    
+    function updateMoodLog() {
+      if (!state.moods || state.moods.length === 0) return;
+      const todayMoods = state.moods.filter(m => new Date(m.time).toDateString() === new Date().toDateString());
+      if (todayMoods.length > 0) {
+        const last = todayMoods[todayMoods.length - 1];
+        const time = new Date(last.time).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+        document.getElementById('moodLog').textContent = `Last mood: ${last.mood} at ${time}`;
+      }
+    }
+    function openSettings() { showModal('settingsModal'); document.getElementById('goalInput').value = state.goal; document.getElementById('petNameInput').value = state.petName; }
+    function saveSettings() { state.goal = parseInt(document.getElementById('goalInput').value) || 2000; state.petName = document.getElementById('petNameInput').value || 'Droplet'; save(); updateUI(); closeModal(null, 'settingsModal'); showToast('Saved!', 'success'); }
+    function toggleDark() { state.dark = !state.dark; document.body.classList.toggle('dark', state.dark); document.getElementById('darkBtn').textContent = state.dark ? '☀️' : '🌙'; document.getElementById('darkToggle').textContent = state.dark ? 'On' : 'Off'; save(); }
     
     function showTab(tab) {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -988,25 +1550,22 @@
       document.querySelectorAll('.nav-item')[['today', 'stats', 'items'].indexOf(tab)]?.classList.add('active');
     }
     
-    function showToast(msg, type = '') {
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.className = 'toast show ' + type;
-      setTimeout(() => t.classList.remove('show'), 2000);
-    }
+    function showToast(msg, type = '') { const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast show ' + type; setTimeout(() => t.classList.remove('show'), 2500); }
+    function createConfetti() { const colors = ['#0ea5e9', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']; for (let i = 0; i < 50; i++) { const c = document.createElement('div'); c.className = 'confetti'; c.style.left = Math.random() * 100 + 'vw'; c.style.background = colors[Math.floor(Math.random() * colors.length)]; c.style.animationDelay = Math.random() * 2 + 's'; c.style.borderRadius = Math.random() > 0.5 ? '50%' : '0'; document.body.appendChild(c); setTimeout(() => c.remove(), 3000); } }
     
     function updateUI() {
       // Progress
       const pct = Math.min(100, Math.round(state.intake / state.goal * 100));
-      const offset = 264 - (pct / 100 * 264);
+      const offset = 327 - (pct / 100 * 327);
       document.getElementById('progressRing').style.strokeDashoffset = offset;
       document.getElementById('percent').textContent = pct + '%';
       document.getElementById('intake').textContent = state.intake + ' ml';
-      document.getElementById('status').textContent = pct >= 100 ? '🎉 Goal Met!' : pct >= 50 ? '💪 Halfway!' : "Let's hydrate!";
-      document.getElementById('remaining').textContent = pct >= 100 ? 'Great job!' : Math.max(0, state.goal - state.intake) + ' ml to go';
+      document.getElementById('status').textContent = pct >= 100 ? '🎉 Goal Met!' : pct >= 75 ? '💪 Almost There!' : pct >= 50 ? '👍 Halfway!' : "Let's Hydrate!";
+      document.getElementById('remaining').textContent = pct >= 100 ? 'Amazing work!' : Math.max(0, state.goal - state.intake) + ' ml to go';
       document.getElementById('streak').textContent = state.streak;
       document.getElementById('drinks').textContent = state.logs.length;
-      document.getElementById('goalVal').textContent = state.goal;
+      document.getElementById('goalDisplay').textContent = (state.goal / 1000).toFixed(1) + 'L';
+      document.getElementById('streakBig').textContent = state.streak;
       
       // Coins & XP
       document.getElementById('coins').textContent = state.coins;
@@ -1018,51 +1577,41 @@
       
       // Pet
       const pet = PETS.find(p => p.id === state.pet) || PETS[0];
-      document.getElementById('petAvatar').textContent = pet.emoji;
+      document.getElementById('petAvatar').innerHTML = pet.emoji + '<div class="pet-accessory">' + (state.accEquipped ? ACCESSORIES.find(a => a.id === state.accEquipped)?.emoji || '' : '') + '</div>';
       document.getElementById('petName').textContent = state.petName;
       document.getElementById('hungerBar').style.width = state.hunger + '%';
       document.getElementById('happyBar').style.width = state.happy + '%';
       document.getElementById('energyBar').style.width = state.energy + '%';
       
       // Daily
-      const daily = document.getElementById('dailyReward');
-      daily.classList.toggle('claimed', state.dailyClaimed);
+      document.getElementById('dailyReward').classList.toggle('claimed', state.dailyClaimed);
       document.getElementById('dailyText').textContent = state.dailyClaimed ? 'Come back tomorrow!' : 'Claim 50 coins + 25 XP!';
       document.getElementById('dailyBtn').textContent = state.dailyClaimed ? 'Claimed' : 'Claim';
       
-      // Dark toggle
+      // Dark
       document.getElementById('darkToggle').textContent = state.dark ? 'On' : 'Off';
       document.getElementById('darkBtn').textContent = state.dark ? '☀️' : '🌙';
       
       // Drink types
-      document.getElementById('drinkTypes').innerHTML = DRINKS.map(d => 
-        `<div class="drink-type ${state.drinkType === d.id ? 'selected' : ''}" onclick="state.drinkType='${d.id}';save();updateUI()">
-          <span class="drink-type-icon">${d.emoji}</span>
-          <span class="drink-type-name">${d.name}</span>
-        </div>`
-      ).join('');
+      document.getElementById('drinkTypes').innerHTML = DRINKS.map(d => `<div class="drink-type ${state.drinkType === d.id ? 'selected' : ''}" onclick="state.drinkType='${d.id}';save();updateUI()"><span class="drink-type-icon">${d.emoji}</span><span class="drink-type-name">${d.name}</span><span class="drink-type-pct">${Math.round(d.mult * 100)}%</span></div>`).join('');
       
       // Log
       const logCard = document.getElementById('logCard');
       if (state.logs.length) {
         logCard.style.display = 'block';
-        document.getElementById('logList').innerHTML = state.logs.slice(-5).reverse().map(l => {
-          const d = DRINKS.find(x => x.id === l.type) || DRINKS[0];
-          return `<div class="stat-row"><span>${d.emoji} +${l.ml}ml</span><span class="stat-label">${new Date(l.time).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span></div>`;
-        }).join('');
-      } else {
-        logCard.style.display = 'none';
-      }
+        document.getElementById('logList').innerHTML = state.logs.slice(-5).reverse().map(l => { const d = DRINKS.find(x => x.id === l.type) || DRINKS[0]; return `<div class="log-item"><div class="log-icon">${d.emoji}</div><div class="log-content"><div class="log-title">${d.name}</div><div class="log-time">${new Date(l.time).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</div></div><div class="log-amount">+${l.ml}ml</div></div>`; }).join('');
+      } else { logCard.style.display = 'none'; }
       
-      // Tip
       document.getElementById('tip').textContent = TIPS[Math.floor(Math.random() * TIPS.length)];
       
       // Stats
       const dates = Object.keys(history).sort().reverse();
       document.getElementById('totalMl').textContent = (state.stats.totalMl / 1000).toFixed(1) + ' L';
       document.getElementById('goalsMet').textContent = state.stats.goalsMet;
-      document.getElementById('bestStreak').textContent = Math.max(state.streak, ...dates.map(d => history[d].streak || 0)) + ' days';
-      document.getElementById('bubbles').textContent = state.bubbles;
+      document.getElementById('bestStreak').textContent = Math.max(state.streak, ...dates.map(d => history[d]?.streak || 0)) + ' days';
+      const avgDays = dates.slice(0, 7);
+      const avgTotal = avgDays.reduce((sum, d) => sum + (history[d]?.intake || 0), 0) + state.intake;
+      document.getElementById('avgDaily').textContent = Math.round(avgTotal / (avgDays.length + 1)) + ' ml';
       
       // Chart
       let chartHtml = '';
@@ -1072,50 +1621,30 @@
         const key = d.toISOString().split('T')[0];
         const data = key === today() ? { intake: state.intake, goalMet: state.intake >= state.goal } : (history[key] || { intake: 0, goalMet: false });
         const maxIntake = Math.max(state.goal, ...dates.slice(0, 7).map(dt => history[dt]?.intake || 0), 1);
-        const h = (data.intake / maxIntake) * 50;
-        chartHtml += `<div class="chart-bar"><div class="chart-fill ${data.goalMet ? 'good' : ''}" style="height:${Math.max(3, h)}px"></div><div class="chart-label">${days[d.getDay()]}</div></div>`;
+        const h = (data.intake / maxIntake) * 80;
+        chartHtml += `<div class="chart-bar"><div class="chart-fill ${data.goalMet ? 'good' : ''}" style="height:${Math.max(4, h)}px"></div><div class="chart-label">${days[d.getDay()]}</div></div>`;
       }
       document.getElementById('chart').innerHTML = chartHtml;
       
       // Items
-      document.getElementById('petGrid').innerHTML = PETS.map(p => {
-        const owned = state.pets.includes(p.id);
-        const equipped = state.pet === p.id;
-        return `<div class="grid-item ${equipped ? 'equipped' : owned ? 'owned' : 'locked'}" onclick="${owned ? `equipPet('${p.id}')` : ''}">${p.emoji}<span class="grid-item-name">${p.name}</span></div>`;
-      }).join('');
+      document.getElementById('petGrid').innerHTML = PETS.map(p => { const owned = state.pets.includes(p.id); const equipped = state.pet === p.id; return `<div class="collection-item ${equipped ? 'equipped' : owned ? 'owned' : 'locked'}" onclick="${owned ? `equipPet('${p.id}')` : ''}">${p.emoji}<span class="collection-item-name">${p.name}</span></div>`; }).join('');
       document.getElementById('petCount').textContent = state.pets.length;
-      
-      document.getElementById('accGrid').innerHTML = ACCESSORIES.map(a => {
-        const owned = state.accessories.includes(a.id);
-        const equipped = state.accEquipped === a.id;
-        return `<div class="grid-item ${equipped ? 'equipped' : owned ? 'owned' : 'locked'}" onclick="${owned ? `equipAcc('${a.id}')` : ''}">${a.emoji}<span class="grid-item-name">${a.name}</span></div>`;
-      }).join('');
+      document.getElementById('accGrid').innerHTML = ACCESSORIES.map(a => { const owned = state.accessories.includes(a.id); const equipped = state.accEquipped === a.id; return `<div class="collection-item ${equipped ? 'equipped' : owned ? 'owned' : 'locked'}" onclick="${owned ? `equipAcc('${a.id}')` : ''}">${a.emoji}<span class="collection-item-name">${a.name}</span></div>`; }).join('');
       document.getElementById('accCount').textContent = state.accessories.length;
-      
-      document.getElementById('achGrid').innerHTML = ACHIEVEMENTS.map(a => {
-        const earned = state.achievements.includes(a.id);
-        return `<div class="grid-item ${earned ? 'owned' : 'locked'}">${a.emoji}<span class="grid-item-name">${a.name}</span></div>`;
-      }).join('');
+      document.getElementById('achGrid').innerHTML = ACHIEVEMENTS.map(a => { const earned = state.achievements.includes(a.id); return `<div class="collection-item ${earned ? 'owned' : 'locked'}">${a.emoji}<span class="collection-item-name">${a.name}</span></div>`; }).join('');
       document.getElementById('achCount').textContent = state.achievements.length;
+      
+      // New features
+      updateScoreUI();
+      updateLeaderboard();
+      updateMoodLog();
     }
     
-    // Init
     load();
+    setInterval(() => { state.hunger = Math.max(0, state.hunger - 0.3); state.happy = Math.max(0, state.happy - 0.2); state.energy = Math.min(100, state.energy + 0.1); save(); updateUI(); }, 60000);
+    setInterval(() => { const s = localStorage.getItem(KEY); if (s && JSON.parse(s).date !== today()) load(); }, 60000);
     
-    // Decay pet stats
-    setInterval(() => {
-      state.hunger = Math.max(0, state.hunger - 0.3);
-      state.happy = Math.max(0, state.happy - 0.2);
-      state.energy = Math.min(100, state.energy + 0.1);
-      save();
-      updateUI();
-    }, 60000);
-    
-    // Day change check
-    setInterval(() => {
-      const stored = localStorage.getItem(KEY);
-      if (stored && JSON.parse(stored).date !== today()) load();
-    }, 60000);
+    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(() => {}); }
   </script>
 </body>
 </html>
